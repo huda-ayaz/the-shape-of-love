@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL2/SDL.h>
+// #include "SDL_mixer.h"
 #include <unistd.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -16,14 +17,18 @@
 // to run the program
 // gcc -Wall -g -std=c99 -I/opt/homebrew/opt/sdl2/include -L/opt/homebrew/opt/sdl2/lib ./src/*.c -o main -lSDL2
 // ./main
+
+//SDL_GET_TICKS
+//1000ms = 1second
+
 SDL_Window *window;
 SDL_Renderer *renderer;
 
 SDL_Texture *texture;
 bool is_running = false;
 uint32_t *color_buffer = NULL; // color buffer
-int window_width = 800;
-int window_height = 600;
+int window_width = 1280;
+int window_height = 720;
 
 bool initialize_windowing_system();
 void process_keyboard_input();
@@ -44,6 +49,9 @@ float rotation_angle = 0.0;
 vec3_t cube_rotation = {.x = 0, .y = 0, .z = 0};
 void draw_Pixels(int x, int y, uint32_t color);
 
+void translate_cube(int tranX, int tranY, float scaling_factor);
+void draw_cube(int tranX, int tranY, float scaling_factor);
+
 // Clear up memory after
 void clean_up_windowing_system();
 void update_state();
@@ -56,6 +64,7 @@ int t_count = 0;
 //int Square_count = 0;
 //void test_update();
 
+// Mix_Music* gMusic = NULL;
 
 //vec3_t transformed_vertex;
 
@@ -67,10 +76,12 @@ int main(void)
   // FullScreen//
   // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
   // build_cube_model();
+
   while (is_running)
   {
     //Testing concurrent animation. Current Flaw: How to make it concurrent
     process_keyboard_input();
+    // Mix_PlayMusic(gMusic, -1);
     update_state();
     run_render_pipeline();
     SDL_Delay(16);
@@ -116,6 +127,19 @@ bool initialize_windowing_system()
     return false;
   }
 
+  // if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+  // {
+  //   printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
+  //   success = false;
+  // }
+  
+  // gMusic = Mix_LoadMUS("song.wav");
+  // if (gMusic == NULL)
+  // {
+  //   printf("Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError());
+  //   success = false;
+  // }
+
   return true;
 }
 
@@ -148,25 +172,9 @@ void update_state()
 
   project_model();
 
-  for (int i = 0; i < t_count; i++)
-  {
-    triangle_t render_tri = triangles_to_render[i];
-    for (int j = 0; j < 3; j++)
-    {
-      
-      draw_Rect(render_tri.points[0].x + (window_width/2), render_tri.points[0].y + (window_height/2), 4, 4, 0xFFFEBFDF);
-      draw_Rect(render_tri.points[1].x + (window_width/2), render_tri.points[1].y + (window_height/2), 4, 4, 0xFFFEBFDF);
-      draw_Rect(render_tri.points[2].x + (window_width/2), render_tri.points[2].y + (window_height/2), 4, 4, 0xFFFEBFDF);
+  draw_cube(0,0,2);
 
-      draw_Triangle(
-      render_tri.points[0].x + (window_width/2),render_tri.points[0].y + (window_height/2), 
-      render_tri.points[1].x + (window_width/2), render_tri.points[1].y + (window_height/2), 
-      render_tri.points[2].x + (window_width/2), render_tri.points[2].y + (window_height/2), 0xFFF9DCE8);
-    }
 
-  }
-
-  t_count = 0;
 
   //testing time.
   // if(Square_count < 300){
@@ -180,6 +188,9 @@ void clean_up_windowing_system()
   SDL_DestroyTexture(texture);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
+  // Mix_FreeMusic(gMusic);
+  // gMusic = NULL;
+  // Mix_Quit();
   SDL_Quit();
 }
 
@@ -305,7 +316,7 @@ vec2_t perspective_project_point(vec3_t point_3d)
 
   // float perspective_factor = 1.0 / (1.0 + point_3d.z);
 
-  int scaling_factor = 500;
+  int scaling_factor = 100;
 
   vec2_t projected_point = {point_3d.x / point_3d.z, point_3d.y / point_3d.z};
   projected_point.x *= scaling_factor;
@@ -373,34 +384,30 @@ void project_model()
   }
 }
 
-// This is the implementation of the cube without backface culling
-// void project_model()
-// {
-//   for (int i = 0; i < N_MESH_FACES; i++)
-//   {
-//     face_t mesh_face = mesh_faces[i];
-//     vec3_t face_vertices[3];
+//this function draws the cube with an added option for translation
+void draw_cube(int tranX, int tranY, float scaling_factor){ // default: 0, 0, 1
+  translate_cube(tranX, tranY, scaling_factor);
+  //scale_cube(scaling_factor);
+}
 
-//     face_vertices[0] = mesh_vertices[mesh_face.a - 1];
-//     face_vertices[1] = mesh_vertices[mesh_face.b - 1];
-//     face_vertices[2] = mesh_vertices[mesh_face.c - 1];
+void translate_cube(int tranX, int tranY, float scaling_factor){
+  for (int i = 0; i < t_count; i++)
+  {
+    triangle_t render_tri = triangles_to_render[i];
+    for (int j = 0; j < 3; j++)
+    {
+      
+      draw_Rect((render_tri.points[0].x + (window_width/2) + tranX), (render_tri.points[0].y + (window_height/2) + tranY), 4, 4, 0xFFFEBFDF);
+      draw_Rect((render_tri.points[1].x + (window_width/2) + tranX), (render_tri.points[1].y + (window_height/2) + tranY), 4, 4, 0xFFFEBFDF);
+      draw_Rect((render_tri.points[2].x + (window_width/2) + tranX), (render_tri.points[2].y + (window_height/2) + tranY), 4, 4, 0xFFFEBFDF);
 
-//     for (int j = 0; j < 3; j++)
-//     {
-//       vec3_t transformed_vertex = face_vertices[j];
+      draw_Triangle(
+      (render_tri.points[0].x)*scaling_factor + (window_width/2) + tranX, (render_tri.points[0].y)*scaling_factor + (window_height/2) + tranY, 
+      (render_tri.points[1].x)*scaling_factor + (window_width/2) + tranX, (render_tri.points[1].y)*scaling_factor + (window_height/2) + tranY, 
+      (render_tri.points[2].x)*scaling_factor + (window_width/2) + tranX, (render_tri.points[2].y)*scaling_factor + (window_height/2) + tranY, 0xFFF9DCE8);
+    }
 
-//       transformed_vertex = vec3_rotate_x(transformed_vertex, cube_rotation.x);
-//       transformed_vertex = vec3_rotate_y(transformed_vertex, cube_rotation.y);
-//       transformed_vertex = vec3_rotate_z(transformed_vertex, cube_rotation.z);
-//       transformed_vertex.z -= camera_position.z;
+  }
 
-//       vec2_t projected_point = perspective_project_point(transformed_vertex);
-
-//       // projected_point.x -= (window_width / 2);
-//       // projected_point.y -= (window_height / 2);
-//       proj_Triangle.points[j] = projected_point;
-//     }
-
-//     triangles_to_render[i] = proj_Triangle;
-//   }
-// }
+  t_count = 0;
+}

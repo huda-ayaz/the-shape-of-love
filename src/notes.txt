@@ -4,3 +4,6 @@ Function to code:
     heart
     pyramid
     ripple
+
+    158 seconds in total = 158,000 ms
+    enter troubador is at 
