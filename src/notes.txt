@@ -1,0 +1,6 @@
+Function to code:
+    cube
+    triangle
+    heart
+    pyramid
+    ripple
