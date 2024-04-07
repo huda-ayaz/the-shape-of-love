@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL2/SDL.h>
-// #include "SDL_mixer.h"
 #include <unistd.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
 #include "vector.h"
 #include "mesh.h"
+
 
 //color codes:
   //#F9DCE8 - soft pink
@@ -63,15 +63,17 @@ void draw_Triangle(int x1, int y1, int x2, int y2, int x3, int y3, uint32_t colo
 int t_count = 0;
 //int Square_count = 0;
 //void test_update();
-
+int total_time = 159000;
 // Mix_Music* gMusic = NULL;
 
 //vec3_t transformed_vertex;
+
 
 int main(void)
 {
   is_running = initialize_windowing_system();
   set_up_memory_buffers();
+  
 
   // FullScreen//
   // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
@@ -98,6 +100,7 @@ int main(void)
 
 bool initialize_windowing_system()
 {
+  SDL_Init(SDL_INIT_EVERYTHING);
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
   {
     fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
@@ -143,6 +146,7 @@ bool initialize_windowing_system()
   return true;
 }
 
+
 void process_keyboard_input()
 {
   SDL_Event event;
@@ -172,15 +176,26 @@ void update_state()
 
   project_model();
 
-  draw_cube(0,0,2);
+  // draw_cube(0,0,2);
 
-
-
-  //testing time.
-  // if(Square_count < 300){
-  //     draw_Rect(0+Square_count,10,50,50, 0xFFFFFFFF);
-  //     Square_count++;
+  // if (SDL_GetTicks() <= 10000) {
+  //   for (int i = 0; i < 1000; i++) {
+  //     draw_cube(100-(50*i), 0, 2);
   //   }
+  // }
+
+  int test = 0;
+
+  if(SDL_GetTicks() <= total_time){
+    draw_cube(100+test, 0, 2);
+    test++;
+  }
+
+  test = 0;
+
+
+
+
 }
 
 void clean_up_windowing_system()
@@ -188,9 +203,7 @@ void clean_up_windowing_system()
   SDL_DestroyTexture(texture);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
-  // Mix_FreeMusic(gMusic);
-  // gMusic = NULL;
-  // Mix_Quit();
+
   SDL_Quit();
 }
 

@@ -1,7 +1,9 @@
 OBJS = $(wildcard */*.c)
 CC = gcc
-INCLUDE_PATHS = -I/opt/homebrew/opt/sdl2/include
-LIBRARY_PATHS = -L/opt/homebrew/opt/sdl2/lib
+INCLUDE_PATHS = -I/opt/homebrew/opt/sdl2/include 
+# -I/opt/homebrew/opt/sdl2_mixer/include -D_THREAD_SAFE
+LIBRARY_PATHS = -L/opt/homebrew/opt/sdl2/lib 
+# -L/opt/homebrew/opt/sdl2_mixer/lib
 COMPILER_FLAGS = -Wall -g -std=c17
 LINKER_FLAGS = -lSDL2
 # OBJ_Name = newCube

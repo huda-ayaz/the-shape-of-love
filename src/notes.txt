@@ -5,5 +5,5 @@ Function to code:
     pyramid
     ripple
 
-    158 seconds in total = 158,000 ms
+    159 seconds in total = 159,000 ms
     enter troubador is at 
